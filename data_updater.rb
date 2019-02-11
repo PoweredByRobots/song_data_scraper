@@ -29,6 +29,8 @@ end
 
 def xpath(doc, name)
   doc.xpath(paths[name.to_sym]).children.to_s
+rescue => error
+  puts error.message
 end
 
 def webdoc(path)
