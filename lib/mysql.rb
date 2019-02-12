@@ -26,7 +26,6 @@ module Mysql
     sql = "UPDATE songlist SET #{values} WHERE id = #{id}"
     client.query(sql)
   rescue => error
-    binding.pry
     puts "Skipping #{id}\n#{error.message}"
   end
 end
