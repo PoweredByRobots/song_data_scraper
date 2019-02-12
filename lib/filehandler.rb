@@ -11,8 +11,8 @@ class FileHandler
     File.readlines(filename).map(&:to_i)
   end
 
-  def add_to_list(id)
-    File.open(filename, 'a') { |f| f.puts(id) }
+  def add_to_list(data)
+    File.open(filename, 'a') { |f| f.puts(data) }
   end
 
   private
