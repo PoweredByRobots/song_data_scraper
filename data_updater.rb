@@ -49,6 +49,8 @@ def lookup_data(artist, title)
   return unless link_data
   link = link_data.attributes['href'].value
   extract_data_from_paths(webdoc(link))
+rescue => error
+  puts error.message
 end
 
 def extract_data_from_paths(doc)
