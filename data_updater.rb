@@ -54,6 +54,7 @@ end
 def extract_data_from_paths(doc)
   data = {}
   paths.keys.each { |a| data[a] = xpath(doc, a) }
+  return if data[:happiness].nil?
   data
 end
 
@@ -81,6 +82,7 @@ def update_data(id, artist, title)
 end
 
 def escape_apostrophes(string)
+  return unless string
   string.gsub("'", "\\\\'")
 end
 
