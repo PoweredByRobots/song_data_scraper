@@ -1,21 +1,16 @@
 #!/usr/bin/env ruby
 
-require_relative 'lib/file_handler'
+require_relative 'lib/whitelister'
 require_relative 'lib/mysql'
 require_relative 'lib/spotify'
 require_relative 'lib/song'
 
-def update_song(id, artist, title)
-  song = Song.new(id, artist, title)
-  update_year(song)
-end
-
 def lookup_year(song)
+  sleep 2
   matches = spotify.track_search(song.with_artist_name)
   if matches.empty?
-    whitelist.add_line(song.id)
+    whitelist.add(song.id)
     puts song.with_artist_name
-    sleep 2
     return
   end
   system 'clear'
@@ -29,21 +24,19 @@ def update_year(song)
   system 'clear'
   db.update(song.id, "albumyear = '#{year}'")
   puts "Setting #{song.with_artist_name} to [#{year}]"
-  sleep 2
 end
 
-def sql_additions
+def fields
+  %w[ID artist title]
+end
+
+def criteria
   "AND (albumyear = \'\' " \
     "OR albumyear = \'1900\' OR albumyear = \'1700\')"
 end
 
-def remove_whitelisted(songs)
-  whitelisted = whitelist.line_by_line
-  songs.select { |song| !whitelisted.include? song.first }
-end
-
 def whitelist
-  @whitelist ||= FileHandler.new('year_updater.whitelist')
+  @whitelist ||= Whitelister.new('year_updater')
 end
 
 def spotify
@@ -54,9 +47,16 @@ def db
   @db ||= Mysql.new
 end
 
+def prepare(songs)
+  songs = db.songs(fields, criteria)
+  whitelist.check_against(songs)
+end
+
 system 'clear'
 
 spotify.authenticate!
-songs = db.songs(sql_additions)
-songs = remove_whitelisted(songs)
-songs.each { |id, artist, title| update_song(id, artist, title) }
+songs = prepare(songs)
+songs.each do |id, artist, title|
+  song = Song.new(id, artist, title)
+  update_year(song)
+end
