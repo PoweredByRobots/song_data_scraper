@@ -1,3 +1,4 @@
+require_relative 'song'
 require 'nokogiri'
 require 'open-uri'
 
