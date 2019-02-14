@@ -2,20 +2,30 @@ require 'mysql2'
 
 # MYSQL Database stuff
 class Mysql
-  attr_reader :client
+  attr_reader :client, :error_count
+
+  def initialize
+    @error_count = 0
+  end
 
   def update(id, values)
     sql = "UPDATE songlist SET #{values} WHERE id = #{id}"
     client.query(sql)
   rescue => error
     puts "Skipping #{id}\n#{error.message}\n\nSQL: #{sql}"
+    @error_count += 1
+    abort('Too many db errors') if error_count > 3
   end
 
-  def songs(optional_sql = '', list = [])
-    sql = 'SELECT ID, title, artist FROM songlist ' \
-          "WHERE songtype = \'S\' " + optional_sql
+  def songs(fields, criteria = '', list = [])
+    sql = "SELECT #{fields.join(', ')} FROM songlist " \
+          "WHERE songtype = \'S\' #{criteria}"
     results = client.query(sql)
-    results.each { |s| list << [s['ID'], s['artist'].to_s, s['title']] }
+    results.each do |s|
+      record = []
+      fields.each { |f| record << s[f] }
+      list << record
+    end
     list
   end
 
