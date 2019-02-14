@@ -11,10 +11,9 @@ class Mysql
     puts "Skipping #{id}\n#{error.message}\n\nSQL: #{sql}"
   end
 
-  def songs(optionalargs = '')
-    list = []
+  def songs(optional_sql = '', list = [])
     sql = 'SELECT ID, title, artist FROM songlist ' \
-          "WHERE songtype = \'S\' " + optionalargs
+          "WHERE songtype = \'S\' " + optional_sql
     results = client.query(sql)
     results.each { |s| list << [s['ID'], s['artist'].to_s, s['title']] }
     list

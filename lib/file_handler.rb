@@ -6,12 +6,12 @@ class FileHandler
     @filename = filename
   end
 
-  def processed_ids
+  def line_by_line
     create_file if file_not_found?
     File.readlines(filename).map(&:to_i)
   end
 
-  def add_to_list(data)
+  def add_line(data)
     File.open(filename, 'a') { |f| f.puts(data) }
   end
 

@@ -1,43 +1,42 @@
 #!/usr/bin/env ruby
 
 require_relative 'lib/mysql'
-require_relative 'lib/filehandler'
-require_relative 'lib/song'
+require_relative 'lib/file_handler'
+require_relative 'lib/tunebat_song'
 require 'pry'
 
-def filename
-  'processed.songs'
+def whitelist
+  @whitelist ||= FileHandler.new('data_updater.whitelist')
 end
 
-def file
-  @file ||= FileHandler.new(filename)
+def db
+  @db ||= Mysql.new
 end
 
-def database
-  @database ||= Mysql.new
-end
-
-def remove_already_processed(songs)
-  already_processed = file.processed_ids
-  songs.select { |song| !already_processed.include? song.first }
+def remove_whitelisted(songs)
+  whitelisted = whitelist.line_by_line
+  songs.select { |song| !whitelisted.include? song.first }
 end
 
 def update_song(song)
   puts "#{song.artist} - #{song.title}"
   data = song.attributes
   return unless data
-  database.update(song.id, data)
-  file.add_to_list(song.id)
+  db.update(song.id, data)
+  whitelist.add_line(song.id)
+end
+
+def sql_additions
+  'AND happiness = 0'
 end
 
 system 'clear'
 
-songs = remove_already_processed(database.songs('AND happiness = 0'))
-backlog = songs.count
-puts "-==[#{backlog}]==- songs to go!"
+songs = db.songs(sql_additions)
+songs = remove_whitelisted(songs)
+puts "-=[ #{songs.count} ]=- songs to go!"
 
 songs.each do |id, artist, title|
-  song = Song.new(id, artist, title)
+  song = TuneBatSong.new(id, artist, title)
   update_song(song)
-  backlog -= 1
 end
