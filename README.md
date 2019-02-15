@@ -12,6 +12,8 @@ The following data is supported so far:
 - liveness
 - speechiness
 - album
+- year
+- genres
 
 Requires the following environment variables to be set:
 
