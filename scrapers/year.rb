@@ -1,7 +1,7 @@
-require_relative '../whitelister'
-require_relative '../mysql'
-require_relative '../spotify'
-require_relative '../song'
+require_relative '../lib/whitelister'
+require_relative '../lib/mysql'
+require_relative '../lib/spotify'
+require_relative '../lib/song'
 
 # Update song years with data from Spotify
 class YearUpdater

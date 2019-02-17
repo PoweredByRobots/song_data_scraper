@@ -1,6 +1,6 @@
-require_relative '../mysql'
-require_relative '../whitelister'
-require_relative '../tunebat_song'
+require_relative '../lib/mysql'
+require_relative '../lib/whitelister'
+require_relative '../lib/tunebat_song'
 
 # Update various song attributes with data from Tunebat
 class AttributeUpdater

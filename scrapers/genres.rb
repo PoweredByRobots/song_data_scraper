@@ -1,6 +1,6 @@
-require_relative '../genre_master'
-require_relative '../mysql'
-require_relative '../whitelister'
+require_relative '../lib/genre_master'
+require_relative '../lib/mysql'
+require_relative '../lib/whitelister'
 
 # Update genre info with data from musicbrainz
 class GenreUpdater
