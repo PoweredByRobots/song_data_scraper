@@ -1,35 +1,18 @@
+require_relative '../lib/scraper'
 require_relative '../lib/genre_master'
-require_relative '../lib/mysql'
-require_relative '../lib/whitelister'
 
 # Update genre info with data from musicbrainz
-class GenreUpdater
+class GenreUpdater < Scraper
   def run
     songs.each do |id, artist, title, genres|
       update_song(id, artist, title, genres.split(', '))
     end
   end
 
-  def backlog
-    songs.count
-  end
-
   private
-
-  def songs
-    @songs ||= prepare_songs
-  end
-
-  def whitelist
-    @whitelist ||= Whitelister.new('genre_updater')
-  end
 
   def genre_master
     @genre_master ||= GenreMaster.new
-  end
-
-  def db
-    @db ||= Mysql.new
   end
 
   def fields
@@ -52,10 +35,5 @@ class GenreUpdater
     genres = sterilize(genres)
     values = "grouping = \'#{genres.join(', ')}\'"
     db.update(id, values)
-  end
-
-  def prepare_songs
-    db_songs = db.songs(fields)
-    whitelist.check_against(db_songs)
   end
 end

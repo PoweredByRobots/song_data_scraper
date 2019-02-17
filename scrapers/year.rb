@@ -1,10 +1,9 @@
-require_relative '../lib/whitelister'
-require_relative '../lib/mysql'
+require_relative '../lib/scraper'
 require_relative '../lib/spotify'
 require_relative '../lib/song'
 
 # Update song years with data from Spotify
-class YearUpdater
+class YearUpdater < Scraper
   def run
     spotify.authenticate!
     songs.each do |id, artist, title|
@@ -13,15 +12,7 @@ class YearUpdater
     end
   end
 
-  def backlog
-    songs.count
-  end
-
   private
-
-  def songs
-    @songs ||= prepare_songs
-  end
 
   def lookup_year(song)
     sleep 2
@@ -44,29 +35,12 @@ class YearUpdater
     puts "Setting #{song.with_artist_name} to [#{year}]"
   end
 
-  def fields
-    %w(ID artist title)
-  end
-
   def criteria
     "AND (albumyear = \'\' " \
       "OR albumyear = \'1900\' OR albumyear = \'1700\')"
   end
 
-  def whitelist
-    @whitelist ||= Whitelister.new('year_updater')
-  end
-
   def spotify
     @spotify ||= Spotify.new
-  end
-
-  def db
-    @db ||= Mysql.new
-  end
-
-  def prepare_songs
-    db_songs = db.songs(fields, criteria)
-    whitelist.check_against(db_songs)
   end
 end
