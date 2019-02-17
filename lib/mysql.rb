@@ -26,7 +26,7 @@ class Mysql
       fields.each { |f| record << s[f] }
       list << record
     end
-    list
+    list.sort_by { |_id, artist| artist }
   end
 
   private
