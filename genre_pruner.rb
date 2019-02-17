@@ -1,29 +1,14 @@
-require_relative 'lib/mysql'
-require_relative 'lib/whitelister'
 require_relative 'lib/acceptable_genres'
+require 'io/console'
 
 # Limit genres per song to a recognizable list
-module GenrePruner
-  def prune_genres
+class GenrePruner < Scraper
+  def run
     songs.each do |id, artist, title, genres|
-      update_song(id, artist, title, genres.split(', '))
+      whitelist.add(id)
+      puts "\n#{artist} - #{title}..."
+      update_song(id, genres.split(', '))
     end
-  end
-
-  def to_be_pruned
-    songs.count
-  end
-
-  def songs
-    @songs ||= prepare_songs
-  end
-
-  def whitelist
-    @whitelist ||= Whitelister.new('genre_pruner')
-  end
-
-  def db
-    @db ||= Mysql.new
   end
 
   def fields
@@ -42,17 +27,15 @@ module GenrePruner
     genres.map(&:downcase) & preserve_genres.map(&:downcase)
   end
 
-  def update_song(id, artist, title, existing_genres)
-    whitelist.add(id)
-    puts "\n#{artist} - #{title}..."
-    genres = prune(existing_genres)
-    values = "grouping = \'#{genres.join(', ')}\'"
-    sleep 2
+  def update_song(id, existing_genres)
+    genres = prune(existing_genres).join(', ')
+    return if existing_genres == genres.split(', ')
+    print "\nPress any key to update from\n[#{existing_genres.join(', ')}]" \
+          "\nto\n[#{genres}]\n('s' to skip, q to quit) ==> "
+    values = "grouping = \'#{genres}\'"
+    response = STDIN.getch
+    return if response == 's'
+    abort if response == 'q'
     db.update(id, values)
-  end
-
-  def prepare_songs
-    db_songs = db.songs(fields)
-    whitelist.check_against(db_songs)
   end
 end
