@@ -5,47 +5,34 @@ require 'io/console'
 class GenrePruner < Scraper
   def run
     songs.each do |id, artist, title, genres|
+      puts "-> #{artist} - #{title}"
+      update_song(id, genres)
       whitelist.add(id)
-      puts "\n#{artist} - #{title}..."
-      genres = translate(genres)
-      update_song(id, genres.split(', '))
     end
   end
 
   def translate(genres)
-    return genres if genres.empty?
+    return [] if genres.empty?
     translations = []
     genres.split(', ').each do |genre|
       acceptable_genres.each do |key, values|
-        next unless key.to_s == genre || values.include?(genre.downcase)
+        next unless key.to_s == genre.downcase || values.include?(genre.downcase)
         translations << key.to_s
       end
     end
-    puts "Before: #{genres}\nAfter:#{translations.uniq}"
-    gets
+    translations.uniq.join(', ')
   end
 
   def fields
     %w(ID artist title grouping)
   end
 
-  def preserve_genres
-    special_tags + acceptable_genres
-  end
-
-  def special_tags
-    %w(Christmas art01 fraser18 dhr)
-  end
-
-  def prune(genres)
-    genres.map(&:downcase) & preserve_genres.map(&:downcase)
-  end
-
   def update_song(id, existing_genres)
-    genres = prune(existing_genres).join(', ')
-    return if existing_genres == genres.split(', ')
-    print "\nPress any key to update from\n[#{existing_genres.join(', ')}]" \
-          "\nto\n[#{genres}]\n('s' to skip, q to quit) ==> "
+    return if existing_genres.empty?
+    genres = translate(existing_genres)
+    print "b: [#{existing_genres}]\n" \
+          "a: [#{genres}]\n" \
+          "Press any key to update ('s' to skip, q to quit) ==> "
     values = "grouping = \'#{genres}\'"
     response = STDIN.getch
     return if response == 's'
