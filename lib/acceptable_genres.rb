@@ -1,46 +1,46 @@
 def acceptable_genres
-  %w(
-    african
-    britpop
-    canadian
-    classic\ rock
-    classical
-    comedy
-    country
-    dance
-    dance-rock
-    edm
-    electro-swing
-    french
-    grunge
-    heavy\ metal
-    hip\ hop
-    house
-    indie\ rock
-    jazz
-    latin
-    mexican
-    motown
-    oldies
-    pbr\ n\ b
-    pop
-    psychedelic
-    punk
-    r&b
-    reggae
-    rock
-    shoegaze
-    ska
-    soul
-    space\ rock
-    summer
-    surf
-    synthpop
-    top40
-    trance
-    trap\ music
-    trip\ hop
-    weird
-    world
-    yacht\ rock)
+  {
+    'african': %w(afrobat),
+    'britpop': %w(brit\ pop british\ indie\ rock british\ indie\ rock\ pop british\ indie\ rock/pop),
+    'canadian': %w(vancouver\ indie canadian\ country canadian\ indie canadian\ metal canadian\ pop),
+    'classic rock': %w(70s),
+    'classical': %w(), 
+    'comedy': %w(humour funny comedy\ rock comedy/spoken comic),
+    'country': %w(cowboy\ western country-rock country\ gospel country\ rock),
+    'dance': %w(euro\ house euro-dance electronica/dance electronica\ dance electronica\ and\ dance electro electro house electroclash edm house disco\ house disco club club/dance dance\ pop dance/electronic),
+    'dance-rock': %w(dance\ rock),
+    'electro-swing': %w(electro\ swing electroswing),
+    'french': %w(french\ rock french\ reggae french\ indietronica french\ pop france french\ indie\ pop),
+    'grunge': %w(grunge\ pop),
+    'metal': %w(hair\ metal),
+    'hip hop': %w(hip-hop hiphop hip\ hop/rap hip\ hop\ rap gangster\ rap east\ coast\ rap rap east\ coast\ hip\ hop conscious\ hip\ hop abstract\ hip\ hop breakbeat breaks),
+    'indie rock': %w(brooklyn\ indie alternative alternative\ rock alternative/indie alternative/indie\ rock alternrock art\ rock),
+    'indie dance': %w(),
+    'jazz': %w(),
+    'latin': %w(),
+    'mexican': %w(),
+    'motown': %w(),
+    'oldies': %w(),
+    'pbr&b': %w(),
+    'pop': %w(acoustic\ pop adult\ alternative\ pop/rock adult\ alternative\ pop),
+    'psychedelic': %w(),
+    'punk': %w(emo\ punk alternative\ punk),
+    'r&b': %w(rnb r\ and\ b r\ b\ r\ b\ hip\ hop\ r\ b\ soul r&b r&b-soul),
+    'reggae': %w(reggaeton),
+    'rock': %w(experimental-rock experimental\ rock college\ rock blues\ rock alt\ pop\ rock alt\ rock album\ rock acid\ rock adult\ alternative\ rock),
+    'shoegaze': %w(indie\ shoegaze),
+    'ska': %w(),
+    'soul': %w(),
+    'space rock': %w(),
+    'summer': %w(),
+    'surf': %w(),
+    'synthpop': %w(),
+    'top40': %w(top\ 40),
+    'trance': %w(),
+    'trap music': %w(),
+    'trip hop': %w(trip-hop triphop),
+    'weird': %w(),
+    'world': %w(world\ chill),
+    'yacht rock': %w()
+  }
 end

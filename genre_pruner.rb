@@ -7,8 +7,22 @@ class GenrePruner < Scraper
     songs.each do |id, artist, title, genres|
       whitelist.add(id)
       puts "\n#{artist} - #{title}..."
+      genres = translate(genres)
       update_song(id, genres.split(', '))
     end
+  end
+
+  def translate(genres)
+    return genres if genres.empty?
+    translations = []
+    genres.split(', ').each do |genre|
+      acceptable_genres.each do |key, values|
+        next unless key.to_s == genre || values.include?(genre.downcase)
+        translations << key.to_s
+      end
+    end
+    puts "Before: #{genres}\nAfter:#{translations.uniq}"
+    gets
   end
 
   def fields
