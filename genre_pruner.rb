@@ -16,11 +16,18 @@ class GenrePruner < Scraper
     translations = []
     genres.split(', ').each do |genre|
       acceptable_genres.each do |key, values|
-        next unless key.to_s == genre.downcase || values.include?(genre.downcase)
-        translations << key.to_s
+        translations << to_acceptable(genre, key, values)
       end
     end
-    translations.uniq.join(', ')
+    translations.uniq.compact.join(', ')
+  end
+
+  def to_acceptable(genre, acceptable, synonyms)
+    acceptable = acceptable.downcase.to_s
+    synonyms = synonyms.map(&:downcase)
+    genre = genre.downcase
+    return unless acceptable == genre || synonyms.include?(genre)
+    acceptable
   end
 
   def fields
@@ -31,12 +38,10 @@ class GenrePruner < Scraper
     return if existing_genres.empty?
     genres = translate(existing_genres)
     print "b: [#{existing_genres}]\n" \
-          "a: [#{genres}]\n" \
-          "Press any key to update ('s' to skip, q to quit) ==> "
+          "a: [#{genres}]\n"
     values = "grouping = \'#{genres}\'"
-    response = STDIN.getch
-    return if response == 's'
-    abort if response == 'q'
+    sleep 0.5
+    puts
     db.update(id, values)
   end
 end
