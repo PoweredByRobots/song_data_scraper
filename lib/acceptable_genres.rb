@@ -37,7 +37,7 @@ def acceptable_genres
                 club/dance
                 dance\ pop
                 dance/electronic),
-    'dance-rock': %w(dance\ rock),
+    'dance-rock': %w(dance\ rock dance-punk),
     'dhr': [],
     'electro-swing': %w(electro\ swing electroswing),
     'folk': %w(traditional\ folk
