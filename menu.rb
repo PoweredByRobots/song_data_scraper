@@ -3,7 +3,6 @@
 require_relative 'scrapers/attributes'
 require_relative 'scrapers/genres'
 require_relative 'scrapers/year'
-require_relative 'genre_pruner'
 require 'io/console'
 require 'pry'
 
