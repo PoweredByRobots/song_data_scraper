@@ -1,6 +1,6 @@
 def acceptable_genres
   { 'acoustic': %w(accoustic),
-    'african': %w(afrobat),
+    'african': %w(afrobeat),
     'ambient': [],
     'art01': [],
     'britpop': %w(brit\ pop
