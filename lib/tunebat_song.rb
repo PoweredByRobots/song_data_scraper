@@ -64,20 +64,43 @@ class TuneBatSong < Song
     data
   end
 
-  def tunebat_search
-    search_string = (artist + ' ' + title).tr(' ', '+')
+  def tunebat_search(search_string)
     '/Search?q=' + sanitize(search_string)
   end
 
-  def tunebat_data
+  def query_site(search_string)
+    return unless search_string
     pause
-    doc = webdoc(tunebat_url, tunebat_search)
-    link_data = doc.xpath(tunebat_link_path).first
+    webdoc(tunebat_url, tunebat_search(search_string.tr(' ', '+')))
+  end
+
+  def path_to_attributes(doc)
+    return unless doc
+    doc.xpath(tunebat_link_path).first
+  end
+
+  def doc_from_xpath
+    doc = query_site(artist + ' ' + title)
+    return doc if path_to_attributes(doc)
+    query_site(search_differently)
+  end
+
+  def tunebat_data
+    doc = doc_from_xpath
+    link_data = path_to_attributes(doc)
     return unless link_data
     link = link_data.attributes['href'].value
     data_from_paths(webdoc(tunebat_url, link))
   rescue => error
     puts error.message
+  end
+
+  def search_differently
+    print "-> not found\nwanna search different? [enter to skip] ==> "
+    search_query = gets.chomp
+    return if search_query.empty?
+    puts "trying '#{search_query}'...\n"
+    search_query
   end
 
   def sanitize(string)
