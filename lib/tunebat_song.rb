@@ -1,6 +1,7 @@
 require_relative 'song'
 require 'nokogiri'
 require 'open-uri'
+require 'io/console'
 
 # TuneBat-specific song stuff
 class TuneBatSong < Song
@@ -16,14 +17,32 @@ class TuneBatSong < Song
     "#{key} = '#{value[key.to_sym]}', "
   end
 
+  def prepare(data)
+    data[:album] = escape_apostrophes(data[:album])
+    data[:albumyear] = year_from_date(data[:albumyear])
+    puts data.to_s
+    return data if approved?('include artist & title updates')
+    data.delete(:title)
+    data.delete(:artist)
+    data
+  end
+
+  def year_from_date(date)
+    date[date.size - 4..date.size]
+  end
+
   def download_attributes
     data = tunebat_data
     return unless data
-    data[:album] = escape_apostrophes(data[:album])
+    return unless approved?('write to the db')
     attributes = ''
-    tunebat_paths.keys.each { |a| attributes += attribute(a, data) }
-    puts data.to_s
+    data.keys.each { |a| attributes += attribute(a, data) }
     attributes[0..-3]
+  end
+
+  def approved?(action)
+    print "\nPress enter to " + action + ', any other key to skip...'
+    STDIN.getch == "\r"
   end
 
   def tunebat_url
@@ -41,20 +60,25 @@ class TuneBatSong < Song
   end
 
   def xpath(doc, name)
-    doc.xpath(tunebat_paths[name.to_sym]).children.to_s
+    doc.xpath(tunebat_paths[name.to_sym]).children.to_s.strip
   rescue => error
     puts error.message
   end
 
   def tunebat_paths
-    { happiness: '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div[3]/div/div[1]/table/tbody/tr[2]/td[3]',
-      danceability: '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div[3]/div/div[1]/table/tbody/tr[2]/td[2]',
-      energy: '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div[3]/div/div[1]/table/tbody/tr[2]/td[1]',
-      accousticness: '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div[3]/div/div[1]/table/tbody/tr[2]/td[5]', 
-      instrumentalness: '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div[3]/div/div[1]/table/tbody/tr[2]/td[6]', 
-      liveness: '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div[3]/div/div[1]/table/tbody/tr[2]/td[7]',
-      speechiness: '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div[3]/div/div[1]/table/tbody/tr[2]/td[8]',
-      album: '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div/div[2]/table/tbody/tr[2]/td[2]' }
+    root = '/html/body/div[1]/div[2]/div/div/div[1]/div/div/div'
+    artist_title_root = '//*[@id="infoPageMain"]/div/div[1]/div[2]/div[1]'
+    { happiness: root + '/div[3]/div/div[1]/table/tbody/tr[2]/td[3]',
+      danceability: root + '/div[3]/div/div[1]/table/tbody/tr[2]/td[2]',
+      energy: root + '/div[3]/div/div[1]/table/tbody/tr[2]/td[1]',
+      accousticness: root + '/div[3]/div/div[1]/table/tbody/tr[2]/td[5]',
+      instrumentalness: root + '/div[3]/div/div[1]/table/tbody/tr[2]/td[6]',
+      liveness: root + '/div[3]/div/div[1]/table/tbody/tr[2]/td[7]',
+      speechiness: root + '/div[3]/div/div[1]/table/tbody/tr[2]/td[8]',
+      album: root + '/div[2]/table/tbody/tr[2]/td[2]',
+      albumyear: root + '/div[2]/table/tbody/tr[1]/td[2]',
+      artist: artist_title_root + '/h2',
+      title: artist_title_root + '/h1' }
   end
 
   def data_from_paths(doc)
@@ -86,17 +110,17 @@ class TuneBatSong < Song
   end
 
   def tunebat_data
-    doc = doc_from_xpath
-    link_data = path_to_attributes(doc)
+    link_data = path_to_attributes(doc_from_xpath)
     return unless link_data
     link = link_data.attributes['href'].value
-    data_from_paths(webdoc(tunebat_url, link))
+    data = data_from_paths(webdoc(tunebat_url, link))
+    prepare(data)
   rescue => error
     puts error.message
   end
 
   def search_differently
-    print "-> not found\nwanna search different? [enter to skip] ==> "
+    print "not found\nwanna search differently? [enter to skip] ==> "
     search_query = gets.chomp
     return if search_query.empty?
     puts "trying '#{search_query}'...\n"
@@ -108,7 +132,7 @@ class TuneBatSong < Song
   end
 
   def pause
-    sleep 10
+    sleep 7
   end
 
   def escape_apostrophes(string)
