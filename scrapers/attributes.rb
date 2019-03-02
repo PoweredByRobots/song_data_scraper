@@ -13,7 +13,9 @@ class AttributeUpdater < Scraper
   private
 
   def update_song(song)
+    system 'clear'
     puts "#{song.artist} - #{song.title}"
+    print "-> searching..."
     whitelist.add(song.id)
     data = song.attributes
     return unless data
