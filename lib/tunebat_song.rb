@@ -26,7 +26,7 @@ class TuneBatSong < Song
     data[:album] = escape_apostrophes(data[:album])
     data[:albumyear] = year_from_date(data[:albumyear])
     if approved?("update to '#{data[:artist]} - #{data[:title]}'")
-      puts "\nupdating from '#{artist} - #{title}' to " \
+      puts "\n\nupdating from '#{artist} - #{title}' to " \
            "'#{data[:artist]} - #{data[:title]}'\n\n"
       return data
     end
@@ -34,7 +34,7 @@ class TuneBatSong < Song
   end
 
   def anonymize(data)
-    puts "\nnot updating artist / title"
+    puts "\n\nnot updating artist / title\n\n"
     data.delete(:title)
     data.delete(:artist)
     data
@@ -49,7 +49,7 @@ class TuneBatSong < Song
     return unless data
     puts data.to_s
     return unless approved?('write to the db')
-    puts "\n*** writing to db *** "
+    puts "\n\n*** writing to db *** "
     attributes = ''
     data.keys.each { |a| attributes += attribute(a, data) }
     attributes[0..-3]
