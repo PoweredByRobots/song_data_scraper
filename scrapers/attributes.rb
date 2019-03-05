@@ -15,9 +15,9 @@ class AttributeUpdater < Scraper
   def update_song(song)
     system 'clear'
     puts "#{song.artist} - #{song.title}"
-    print "-> searching..."
     whitelist.add(song.id)
     data = song.attributes
+    sleep 2 # mostly to see any messages
     return unless data
     db.update(song.id, data)
   end

@@ -2,6 +2,7 @@ require_relative 'song'
 require 'nokogiri'
 require 'open-uri'
 require 'io/console'
+require 'tty-spinner'
 
 # TuneBat-specific song stuff
 class TuneBatSong < Song
@@ -9,6 +10,10 @@ class TuneBatSong < Song
 
   def attributes
     @attributes ||= download_attributes
+  end
+
+  def spinner
+    @spinner ||= TTY::Spinner.new(format: :pulse_2)
   end
 
   private
@@ -20,8 +25,16 @@ class TuneBatSong < Song
   def prepare(data)
     data[:album] = escape_apostrophes(data[:album])
     data[:albumyear] = year_from_date(data[:albumyear])
-    puts data.to_s
-    return data if approved?('include artist & title updates')
+    if approved?("update to '#{data[:artist]} - #{data[:title]}'")
+      puts "\nupdating from '#{artist} - #{title}' to " \
+           "'#{data[:artist]} - #{data[:title]}'\n\n"
+      return data
+    end
+    anonymize(data)
+  end
+
+  def anonymize(data)
+    puts "\nnot updating artist / title"
     data.delete(:title)
     data.delete(:artist)
     data
@@ -34,14 +47,16 @@ class TuneBatSong < Song
   def download_attributes
     data = tunebat_data
     return unless data
+    puts data.to_s
     return unless approved?('write to the db')
+    puts "\n*** writing to db *** "
     attributes = ''
     data.keys.each { |a| attributes += attribute(a, data) }
     attributes[0..-3]
   end
 
   def approved?(action)
-    print "\nPress enter to " + action + ', any other key to skip...'
+    print "\npress [enter] to " + action + ', any other key to skip ==> '
     STDIN.getch == "\r"
   end
 
@@ -94,8 +109,13 @@ class TuneBatSong < Song
 
   def query_site(search_string)
     return unless search_string
-    pause
-    webdoc(tunebat_url, tunebat_search(search_string.tr(' ', '+')))
+    response = nil
+    spinner.run do
+      pause
+      tunebat_search_string = tunebat_search(search_string.tr(' ', '+'))
+      response = webdoc(tunebat_url, tunebat_search_string)
+    end
+    response
   end
 
   def path_to_attributes(doc)
