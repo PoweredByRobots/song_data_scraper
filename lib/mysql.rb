@@ -14,6 +14,7 @@ class Mysql
   rescue => error
     puts "Skipping #{id}\n#{error.message}\n\nSQL: #{sql}"
     @error_count += 1
+    reset_client if error.message.include?('not connected')
     abort('Too many db errors') if error_count > 3
   end
 
@@ -40,5 +41,9 @@ class Mysql
 
   def client
     @client ||= Mysql2::Client.new(options)
+  end
+
+  def reset_client
+    @client = nil 
   end
 end
