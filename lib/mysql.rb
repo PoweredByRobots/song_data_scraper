@@ -2,20 +2,22 @@ require 'mysql2'
 
 # MYSQL Database stuff
 class Mysql
-  attr_reader :client, :error_count
+  attr_reader :client, :retries
 
   def initialize
-    @error_count = 0
+    @retries = 0
   end
 
   def update(id, values)
     sql = "UPDATE songlist SET #{values} WHERE id = #{id}"
     client.query(sql)
+    @retries = 0
   rescue => error
-    puts "Skipping #{id}\n#{error.message}\n\nSQL: #{sql}"
-    @error_count += 1
+    puts "Error running #{sql}\n#{error.message}"
+    @retries += 1
     check_connection(error)
-    abort('Too many db errors') if error_count > 3
+    abort('Unrecoverable db error') if retries > 1
+    retry
   end
 
   def songs(fields, criteria = '', list = [])
