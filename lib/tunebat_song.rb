@@ -28,6 +28,8 @@ class TuneBatSong < Song
     if approved?("update to '#{data[:artist]} - #{data[:title]}'")
       puts "\n\nupdating from '#{artist} - #{title}' to " \
            "'#{data[:artist]} - #{data[:title]}'\n\n"
+      data[:artist] = escape_apostrophes(data[:artist])
+      data[:title] = escape_apostrophes(data[:title])
       return data
     end
     anonymize(data)
@@ -152,7 +154,7 @@ class TuneBatSong < Song
   end
 
   def pause
-    sleep 7
+    sleep 3
   end
 
   def escape_apostrophes(string)
